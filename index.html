@@ -814,6 +814,37 @@
         </div>
       </div>
 
+      <!-- ====== 员工管理页 ====== -->
+      <div class="page" id="page-staff">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+          <div>
+            <h3 style="font-size:18px;font-weight:700;color:#1E293B;">👥 员工管理</h3>
+            <p style="font-size:13px;color:#64748B;margin-top:4px;">管理系统成员信息，仅 CEO 可操作</p>
+          </div>
+          <button class="btn btn-primary" onclick="openStaffModal()">+ 添加员工</button>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>姓名</th>
+                  <th>角色</th>
+                  <th>默认密码</th>
+                  <th>创建时间</th>
+                  <th style="width:120px;text-align:right;">操作</th>
+                </tr>
+              </thead>
+              <tbody id="staffTableBody"></tbody>
+            </table>
+          </div>
+          <div class="empty-state" id="staffEmptyState" style="display:none;">
+            <div class="icon">👥</div>
+            <p>暂无员工数据</p>
+          </div>
+        </div>
+      </div>
+
     </div><!-- content -->
   </div><!-- main -->
 </div><!-- app -->
@@ -1077,36 +1108,6 @@
   </div>
 </div>
 
-<!-- ===================== 员工管理页 ===================== -->
-<div class="page" id="page-staff">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-    <div>
-      <h3 style="font-size:18px;font-weight:700;color:#1E293B;">👥 员工管理</h3>
-      <p style="font-size:13px;color:#64748B;margin-top:4px;">管理系统成员信息，仅 CEO 可操作</p>
-    </div>
-    <button class="btn btn-primary" onclick="openStaffModal()">+ 添加员工</button>
-  </div>
-  <div class="card">
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>姓名</th>
-            <th>角色</th>
-            <th>默认密码</th>
-            <th>创建时间</th>
-            <th style="width:120px;text-align:right;">操作</th>
-          </tr>
-        </thead>
-        <tbody id="staffTableBody"></tbody>
-      </table>
-    </div>
-    <div class="empty-state" id="staffEmptyState" style="display:none;">
-      <div class="icon">👥</div>
-      <p>暂无员工数据</p>
-    </div>
-  </div>
-</div>
 
 <!-- ===================== 员工编辑弹窗 ===================== -->
 <div class="modal-overlay" id="staffModal">
