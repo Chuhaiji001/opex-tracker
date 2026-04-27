@@ -2753,8 +2753,10 @@ function saveStaffList(list) {
 
 function renderStaffPage() {
   const list = getStaffList();
+  console.log('[StaffPage] list =', JSON.stringify(list));
   const tbody = document.getElementById('staffTableBody');
   const emptyState = document.getElementById('staffEmptyState');
+  console.log('[StaffPage] tbody =', tbody, 'emptyState =', emptyState);
 
   if (list.length === 0) {
     tbody.innerHTML = '';
