@@ -439,6 +439,9 @@
         <span class="icon">🚚</span> 采购供应链
       </div>
       <div class="nav-divider"></div>
+      <div class="nav-item" id="navStaffMgmt" data-page="staff" onclick="navigateTo('staff')" style="opacity:0.35;pointer-events:none;">
+        <span class="icon">👥</span> 员工管理
+      </div>
       <div class="nav-item" onclick="openWxConfigModal()">
         <span class="icon">🔔</span> 企业微信通知
         <span id="wxConfigBadge" style="margin-left:auto;font-size:10px;padding:1px 6px;border-radius:10px;min-width:18px;text-align:center;"></span>
@@ -1074,6 +1077,76 @@
   </div>
 </div>
 
+<!-- ===================== 员工管理页 ===================== -->
+<div class="page" id="page-staff">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+    <div>
+      <h3 style="font-size:18px;font-weight:700;color:#1E293B;">👥 员工管理</h3>
+      <p style="font-size:13px;color:#64748B;margin-top:4px;">管理系统成员信息，仅 CEO 可操作</p>
+    </div>
+    <button class="btn btn-primary" onclick="openStaffModal()">+ 添加员工</button>
+  </div>
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>姓名</th>
+            <th>角色</th>
+            <th>默认密码</th>
+            <th>创建时间</th>
+            <th style="width:120px;text-align:right;">操作</th>
+          </tr>
+        </thead>
+        <tbody id="staffTableBody"></tbody>
+      </table>
+    </div>
+    <div class="empty-state" id="staffEmptyState" style="display:none;">
+      <div class="icon">👥</div>
+      <p>暂无员工数据</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 员工编辑弹窗 ===================== -->
+<div class="modal-overlay" id="staffModal">
+  <div class="modal" style="width:480px;">
+    <div class="modal-header">
+      <div class="modal-title" id="staffModalTitle">添加员工</div>
+      <button class="btn btn-ghost btn-sm" onclick="closeStaffModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="staffEditIndex" value="-1">
+      <div class="form-group">
+        <label>姓名 <span style="color:var(--danger);">*</span></label>
+        <input type="text" id="staffName" placeholder="请输入员工姓名" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label>角色 <span style="color:var(--danger);">*</span></label>
+        <select id="staffRole">
+          <option value="">请选择角色</option>
+          <option value="CEO">CEO</option>
+          <option value="运营主管">运营主管</option>
+          <option value="运营助理">运营助理</option>
+          <option value="运营">运营</option>
+          <option value="美工">美工</option>
+          <option value="采购">采购</option>
+          <option value="管理员">管理员</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>初始密码</label>
+        <input type="text" id="staffPwd" placeholder="留空则自动生成（6位数字）" autocomplete="new-password">
+        <p style="font-size:11px;color:#94A3B8;margin-top:4px;">留空将自动生成6位数字密码</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeStaffModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveStaff()">💾 保存</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===================== 修改密码弹窗 ===================== -->
 <div class="modal-overlay" id="changePwdModal">
   <div class="modal" style="width:420px;">
@@ -1135,17 +1208,9 @@ document.addEventListener('DOMContentLoaded', () => {
 // 用户 & 日期
 // ============================================================
 function initUsers() {
-  // CEO: Tom | 运营主管: 马钰 | 运营助理: 宋扬(汇报给主管) | 美工: 杨秉伟
-  const users = [
-    { name: 'Tom', role: 'CEO' },
-    { name: '马钰', role: '运营主管' },
-    { name: '宋扬', role: '运营助理' },
-    { name: '杨秉伟', role: '美工' },
-    { name: '项舒晶', role: '采购' },
-    { name: '管理员', role: '管理员' },
-  ];
+  const staffList = getStaffList();
   const list = document.getElementById('userList');
-  list.innerHTML = users.map(u =>
+  list.innerHTML = staffList.map(u =>
     `<div class="user-chip" data-name="${u.name}" data-role="${u.role}" onclick="selectUser(this)">${u.name}</div>`
   ).join('');
 }
@@ -1157,8 +1222,9 @@ function selectUser(el) {
 }
 
 function getRoleByName(name) {
-  const map = { 'Tom': 'CEO', '马钰': '运营主管', '宋扬': '运营助理', '杨秉伟': '美工', '项舒晶': '采购', '管理员': '管理员' };
-  return map[name] || null;
+  const list = getStaffList();
+  const found = list.find(s => s.name === name);
+  return found ? found.role : null;
 }
 
 function initDate() {
@@ -1209,7 +1275,7 @@ function updateSidebarAccess() {
   const navItems = document.querySelectorAll('.sidebar .nav-item');
   navItems.forEach(item => {
     const onclick = item.getAttribute('onclick') || '';
-    if (onclick.includes('openWxConfigModal')) {
+    if (onclick.includes('openWxConfigModal') || item.id === 'navStaffMgmt') {
       item.style.opacity = isCeo ? '1' : '0.35';
       item.style.pointerEvents = isCeo ? 'auto' : 'none';
     }
@@ -1435,6 +1501,7 @@ function navigateTo(page) {
     warehouse: '🏭 仓储物流',
     design: '🎨 美工做图',
     purchase: '🚚 采购供应链',
+    staff: '👥 员工管理',
   };
   document.getElementById('headerTitle').textContent = titles[page] || page;
   currentPage = page;
@@ -1442,6 +1509,8 @@ function navigateTo(page) {
   if (page === 'dashboard') renderDashboard();
   if (page === 'daily') renderDaily();
   if (page === 'tasks') renderTasks();
+  if (page === 'report') renderReport();
+  if (page === 'staff') renderStaffPage();
   if (page === 'report') renderReport();
   if (page === 'listing') renderModuleTable('listing');
   if (page === 'ads') renderModuleTable('ads');
@@ -2650,6 +2719,144 @@ function updateBadge() {
   } else {
     badge.style.display = 'none';
   }
+}
+
+// ============================================================
+// 员工管理（CEO 专属）
+// ============================================================
+const DEFAULT_STAFF = [
+  { name: 'Tom', role: 'CEO', password: 'tom888618', createdAt: '2026-04-01' },
+  { name: '马钰', role: '运营主管', password: '123456', createdAt: '2026-04-01' },
+  { name: '宋扬', role: '运营助理', password: '234567', createdAt: '2026-04-01' },
+  { name: '杨秉伟', role: '美工', password: '345678', createdAt: '2026-04-01' },
+  { name: '项舒晶', role: '采购', password: '4567890', createdAt: '2026-04-01' },
+  { name: '管理员', role: '管理员', password: '888888', createdAt: '2026-04-01' },
+];
+
+function getStaffList() {
+  const stored = localStorage.getItem('opex_staff');
+  if (stored) {
+    try { return JSON.parse(stored); } catch(e) {}
+  }
+  // 首次加载，写入默认数据
+  localStorage.setItem('opex_staff', JSON.stringify(DEFAULT_STAFF));
+  return [...DEFAULT_STAFF];
+}
+
+function saveStaffList(list) {
+  localStorage.setItem('opex_staff', JSON.stringify(list));
+}
+
+function renderStaffPage() {
+  const list = getStaffList();
+  const tbody = document.getElementById('staffTableBody');
+  const emptyState = document.getElementById('staffEmptyState');
+
+  if (list.length === 0) {
+    tbody.innerHTML = '';
+    emptyState.style.display = 'block';
+    return;
+  }
+  emptyState.style.display = 'none';
+  tbody.innerHTML = list.map((s, i) => `
+    <tr>
+      <td><strong style="color:#1E293B;">${escapeHtml(s.name)}</strong></td>
+      <td><span class="badge badge-progress">${escapeHtml(s.role)}</span></td>
+      <td style="font-family:monospace;color:#64748B;">${escapeHtml(s.password || '—')}</td>
+      <td style="color:#94A3B8;">${escapeHtml(s.createdAt || '—')}</td>
+      <td style="text-align:right;">
+        <button class="btn btn-ghost btn-sm" onclick="openStaffModal(${i})">✏️ 编辑</button>
+        ${s.name !== 'Tom' ? `<button class="btn btn-ghost btn-sm" style="color:var(--danger);" onclick="deleteStaff(${i})">🗑️ 删除</button>` : ''}
+      </td>
+    </tr>
+  `).join('');
+}
+
+function openStaffModal(editIndex) {
+  const modal = document.getElementById('staffModal');
+  document.getElementById('staffEditIndex').value = editIndex !== undefined ? editIndex : -1;
+
+  if (editIndex !== undefined && editIndex >= 0) {
+    const list = getStaffList();
+    const s = list[editIndex];
+    document.getElementById('staffModalTitle').textContent = '编辑员工';
+    document.getElementById('staffName').value = s.name;
+    document.getElementById('staffRole').value = s.role;
+    document.getElementById('staffPwd').value = s.password || '';
+  } else {
+    document.getElementById('staffModalTitle').textContent = '添加员工';
+    document.getElementById('staffName').value = '';
+    document.getElementById('staffRole').value = '';
+    document.getElementById('staffPwd').value = '';
+  }
+  modal.classList.add('show');
+}
+
+function closeStaffModal() {
+  document.getElementById('staffModal').classList.remove('show');
+}
+
+function saveStaff() {
+  const name = document.getElementById('staffName').value.trim();
+  const role = document.getElementById('staffRole').value;
+  const pwd = document.getElementById('staffPwd').value.trim();
+  const editIndex = parseInt(document.getElementById('staffEditIndex').value);
+
+  if (!name) { showToast('❌ 请输入员工姓名', 'error'); return; }
+  if (!role) { showToast('❌ 请选择角色', 'error'); return; }
+
+  const list = getStaffList();
+  const generatedPwd = pwd || String(Math.floor(100000 + Math.random() * 900000));
+
+  if (editIndex >= 0) {
+    // 编辑模式
+    const oldName = list[editIndex].name;
+    list[editIndex].name = name;
+    list[editIndex].role = role;
+    if (pwd) {
+      list[editIndex].password = pwd;
+      localStorage.setItem('pwd_' + name, pwd);
+    }
+    // 如果改名了，迁移密码和历史数据
+    if (oldName !== name) {
+      const oldPwd = localStorage.getItem('pwd_' + oldName) || list[editIndex].password;
+      localStorage.setItem('pwd_' + name, pwd || oldPwd);
+      // 更新任务中的负责人
+      tasks.forEach(t => { if (t.assignee === oldName) t.assignee = name; if (t.assigneeRole === getRoleByName(oldName)) t.assigneeRole = role; });
+      saveData();
+    }
+    showToast('✅ 员工信息已更新', 'success');
+  } else {
+    // 添加模式 - 检查重名
+    if (list.some(s => s.name === name)) {
+      showToast('❌ 该姓名已存在', 'error');
+      return;
+    }
+    const today = new Date().toISOString().split('T')[0];
+    list.push({ name, role, password: generatedPwd, createdAt: today });
+    localStorage.setItem('pwd_' + name, generatedPwd);
+    showToast('✅ 已添加员工：' + name + '（密码：' + generatedPwd + '）', 'success');
+  }
+
+  saveStaffList(list);
+  closeStaffModal();
+  renderStaffPage();
+  // 刷新登录页和下拉框
+  initUsers();
+  populateAssigneeSelect();
+}
+
+function deleteStaff(index) {
+  const list = getStaffList();
+  const s = list[index];
+  if (!s) return;
+  if (!confirm('确定要删除员工 "' + s.name + '" 吗？\n\n删除后该员工将无法登录，相关任务不会被删除。')) return;
+  list.splice(index, 1);
+  saveStaffList(list);
+  renderStaffPage();
+  initUsers();
+  populateAssigneeSelect();
+  showToast('✅ 已删除员工：' + s.name, 'success');
 }
 
 // ============================================================
