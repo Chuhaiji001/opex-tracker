@@ -3068,23 +3068,63 @@ function fmtPercent(n) {
   return (num * 100).toFixed(2) + '%';
 }
 
+function fetchServerStoreData() {
+  return fetch('store_data.json?' + Date.now())
+    .then(r => r.ok ? r.json() : null)
+    .then(data => {
+      if (data && data.date && data.productData) {
+        saveStoreData(data);
+        return data;
+      }
+      return null;
+    })
+    .catch(() => null);
+}
+
 function renderStoreDashboard() {
-  const data = getStoreData();
+  let data = getStoreData();
   const loading = document.getElementById('storeLoading');
   const empty = document.getElementById('storeEmpty');
   const content = document.getElementById('storeContent');
   const dateBadge = document.getElementById('storeDateBadge');
   const status = document.getElementById('storeDataStatus');
 
-  loading.style.display = 'none';
-
   if (!data) {
-    empty.style.display = 'block';
+    // 本地无数据，尝试从服务器自动加载
+    loading.style.display = 'flex';
+    empty.style.display = 'none';
     content.style.display = 'none';
-    dateBadge.textContent = '📅 暂无数据';
-    status.textContent = '';
+    fetchServerStoreData().then(serverData => {
+      loading.style.display = 'none';
+      if (serverData) {
+        _renderStoreContent(serverData);
+      } else {
+        empty.style.display = 'block';
+        content.style.display = 'none';
+        dateBadge.textContent = '📅 暂无数据';
+        status.textContent = '';
+      }
+    });
     return;
+  } else {
+    // 本地有数据，后台静默检查更新
+    fetchServerStoreData().then(serverData => {
+      if (serverData && serverData.date !== data.date) {
+        _renderStoreContent(serverData);
+        showToast('店铺数据已自动更新至 ' + serverData.date, 'success');
+      }
+    });
   }
+
+  loading.style.display = 'none';
+  _renderStoreContent(data);
+}
+
+function _renderStoreContent(data) {
+  const empty = document.getElementById('storeEmpty');
+  const content = document.getElementById('storeContent');
+  const dateBadge = document.getElementById('storeDateBadge');
+  const status = document.getElementById('storeDataStatus');
 
   empty.style.display = 'none';
   content.style.display = 'block';
