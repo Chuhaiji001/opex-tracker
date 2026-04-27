@@ -343,6 +343,57 @@
   .toast.info { border-left:4px solid var(--primary); }
   @keyframes slideIn { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:translateX(0); } }
 
+  /* === 店铺经营分析看板 === */
+  .store-kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px; }
+  .store-kpi { background:white; border-radius:var(--radius); box-shadow:var(--shadow); padding:18px 20px; position:relative; overflow:hidden; transition:transform 0.15s; }
+  .store-kpi:hover { transform:translateY(-2px); box-shadow:var(--shadow-md); }
+  .store-kpi .kpi-label { font-size:12px; color:#64748B; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+  .store-kpi .kpi-value { font-size:26px; font-weight:800; color:#1E293B; line-height:1.1; }
+  .store-kpi .kpi-value.up { color:var(--accent); }
+  .store-kpi .kpi-value.down { color:var(--danger); }
+  .store-kpi .kpi-sub { font-size:11px; color:#94A3B8; margin-top:6px; display:flex; align-items:center; gap:4px; }
+  .store-kpi .kpi-sub .tag-up { color:var(--accent); font-weight:600; }
+  .store-kpi .kpi-sub .tag-down { color:var(--danger); font-weight:600; }
+  .store-kpi .kpi-icon { position:absolute; top:14px; right:16px; font-size:28px; opacity:0.15; }
+  .store-section { background:white; border-radius:var(--radius); box-shadow:var(--shadow); margin-bottom:20px; overflow:hidden; }
+  .store-section-header { padding:14px 20px; border-bottom:1px solid #F1F5F9; display:flex; align-items:center; gap:10px; }
+  .store-section-title { font-size:14px; font-weight:700; color:#1E293B; flex:1; }
+  .store-section-body { padding:0; }
+  .store-table { width:100%; border-collapse:collapse; font-size:13px; }
+  .store-table thead { background:#F8FAFC; }
+  .store-table th { padding:10px 14px; text-align:left; font-weight:600; color:#475569; font-size:12px; border-bottom:1px solid #E2E8F0; white-space:nowrap; }
+  .store-table td { padding:10px 14px; border-bottom:1px solid #F1F5F9; color:#334155; }
+  .store-table tbody tr:hover { background:#F8FAFC; }
+  .store-table .num-cell { text-align:right; font-variant-numeric:tabular-nums; font-weight:600; }
+  .store-table .neg { color:var(--danger); }
+  .store-table .pos { color:var(--accent); }
+  .store-ad-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:24px; }
+  .store-ad-card { background:white; border-radius:var(--radius); box-shadow:var(--shadow); padding:18px 20px; text-align:center; }
+  .store-ad-card .ad-label { font-size:12px; color:#64748B; margin-bottom:6px; }
+  .store-ad-card .ad-value { font-size:22px; font-weight:800; }
+  .store-ad-card .ad-value.good { color:var(--accent); }
+  .store-ad-card .ad-value.warn { color:var(--warning); }
+  .store-ad-card .ad-value.bad { color:var(--danger); }
+  .store-ad-card .ad-desc { font-size:11px; color:#94A3B8; margin-top:4px; }
+  .store-refresh-bar { display:flex; align-items:center; gap:12px; margin-bottom:20px; flex-wrap:wrap; }
+  .store-date-badge { display:inline-flex; align-items:center; gap:6px; padding:6px 14px; background:var(--primary-light); color:var(--primary); border-radius:8px; font-size:13px; font-weight:600; }
+  .store-import-btn { padding:8px 16px; border:1.5px dashed #CBD5E1; border-radius:8px; background:white; cursor:pointer; font-size:13px; color:#64748B; transition:all 0.15s; }
+  .store-import-btn:hover { border-color:var(--primary); color:var(--primary); background:var(--primary-light); }
+  .store-data-status { font-size:12px; color:#94A3B8; margin-left:auto; }
+  .store-warehouse-summary { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:16px; }
+  .store-wh-item { text-align:center; padding:14px; background:#F8FAFC; border-radius:8px; }
+  .store-wh-item .wh-num { font-size:20px; font-weight:800; color:#1E293B; }
+  .store-wh-item .wh-label { font-size:11px; color:#64748B; margin-top:4px; }
+  .store-loading { text-align:center; padding:60px 20px; color:#94A3B8; }
+  .store-loading .spin { font-size:32px; animation:spin 1s linear infinite; display:inline-block; }
+  @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+  .store-empty { text-align:center; padding:60px 20px; color:#94A3B8; }
+  .store-empty .icon { font-size:48px; margin-bottom:12px; opacity:0.4; }
+  .store-empty p { font-size:14px; }
+  .store-chip { display:inline-block; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:600; }
+  .store-chip.fba { background:#DBEAFE; color:#1E40AF; }
+  .store-chip.fbm { background:#FEF3C7; color:#92400E; }
+
   /* === 报告页 === */
   .report-summary { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:24px; }
   .report-card { background:white; border-radius:var(--radius); box-shadow:var(--shadow); padding:20px; text-align:center; }
@@ -417,6 +468,11 @@
       </div>
       <div class="nav-item" data-page="report" onclick="navigateTo('report')">
         <span class="icon">📈</span> 数据报告
+      </div>
+      <div class="nav-divider"></div>
+      <div class="nav-label">数据</div>
+      <div class="nav-item" data-page="store" onclick="navigateTo('store')">
+        <span class="icon">🏪</span> 店铺经营分析
       </div>
       <div class="nav-divider"></div>
       <div class="nav-label">模块</div>
@@ -841,6 +897,88 @@
           <div class="empty-state" id="staffEmptyState" style="display:none;">
             <div class="icon">👥</div>
             <p>暂无员工数据</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== 店铺经营分析页 ====== -->
+      <div class="page" id="page-store">
+        <div class="store-refresh-bar">
+          <div class="store-date-badge" id="storeDateBadge">📅 数据加载中...</div>
+          <label class="store-import-btn" for="storeDataImport">📂 导入 JSON 数据
+            <input type="file" id="storeDataImport" accept=".json" style="display:none;" onchange="handleStoreDataImport(event)">
+          </label>
+          <div class="store-data-status" id="storeDataStatus"></div>
+        </div>
+
+        <div id="storeLoading" class="store-loading" style="display:none;">
+          <div class="spin">⏳</div>
+          <p style="margin-top:12px;">正在加载店铺数据...</p>
+        </div>
+
+        <div id="storeEmpty" class="store-empty">
+          <div class="icon">🏪</div>
+          <p>暂无店铺数据</p>
+          <p style="font-size:12px;margin-top:6px;">请通过「导入 JSON 数据」按钮导入，或等待自动化任务更新</p>
+        </div>
+
+        <div id="storeContent" style="display:none;">
+          <!-- 核心 KPI -->
+          <div class="store-kpi-grid" id="storeKpiGrid"></div>
+
+          <!-- 广告效率 -->
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+            <span style="font-size:14px;font-weight:700;">📢 广告效率指标</span>
+          </div>
+          <div class="store-ad-grid" id="storeAdGrid"></div>
+
+          <!-- 热销商品 TOP10 -->
+          <div class="store-section">
+            <div class="store-section-header">
+              <span>🏆</span>
+              <span class="store-section-title">商品毛利 TOP 10（按毛利排序）</span>
+            </div>
+            <div class="store-section-body">
+              <table class="store-table">
+                <thead><tr>
+                  <th>#</th><th>ASIN</th><th>商品名称</th><th>SKU</th><th>销量</th><th>销售额(¥)</th><th>毛利(¥)</th><th>毛利率</th><th>退货</th>
+                </tr></thead>
+                <tbody id="storeTopProducts"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 退货预警商品 -->
+          <div class="store-section" id="storeReturnSection" style="display:none;">
+            <div class="store-section-header">
+              <span>⚠️</span>
+              <span class="store-section-title">退货商品（有退货记录）</span>
+            </div>
+            <div class="store-section-body">
+              <table class="store-table">
+                <thead><tr>
+                  <th>ASIN</th><th>商品名称</th><th>退货数</th><th>退货率</th><th>退款额(¥)</th>
+                </tr></thead>
+                <tbody id="storeReturnProducts"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- FBA 库存概览 -->
+          <div class="store-section" id="storeStockSection" style="display:none;">
+            <div class="store-section-header">
+              <span>📦</span>
+              <span class="store-section-title">FBA 库存概览</span>
+            </div>
+            <div class="store-section-body" style="padding:16px;">
+              <div class="store-warehouse-summary" id="storeStockSummary"></div>
+              <table class="store-table">
+                <thead><tr>
+                  <th>SKU</th><th>商品名称</th><th>店铺</th><th>FBA可售</th><th>在途</th><th>库存金额(¥)</th><th>库龄(天)</th><th>周转天数</th>
+                </tr></thead>
+                <tbody id="storeStockTable"></tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
@@ -1511,6 +1649,7 @@ function navigateTo(page) {
     warehouse: '🏭 仓储物流',
     design: '🎨 美工做图',
     purchase: '🚚 采购供应链',
+    store: '🏪 店铺经营分析',
     staff: '👥 员工管理',
   };
   document.getElementById('headerTitle').textContent = titles[page] || page;
@@ -1520,6 +1659,7 @@ function navigateTo(page) {
   if (page === 'daily') renderDaily();
   if (page === 'tasks') renderTasks();
   if (page === 'report') renderReport();
+  if (page === 'store') renderStoreDashboard();
   if (page === 'staff') renderStaffPage();
   if (page === 'report') renderReport();
   if (page === 'listing') renderModuleTable('listing');
@@ -2867,6 +3007,257 @@ function deleteStaff(index) {
 }
 
 // ============================================================
+// ============================================================
+// 店铺经营分析看板
+// ============================================================
+
+function getStoreData() {
+  try {
+    const raw = localStorage.getItem('opex_store_data');
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (parsed && parsed.date && parsed.productData) return parsed;
+    return null;
+  } catch(e) { return null; }
+}
+
+function saveStoreData(data) {
+  localStorage.setItem('opex_store_data', JSON.stringify(data));
+}
+
+function handleStoreDataImport(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.date || !data.productData) {
+        showToast('JSON 格式不正确，需要包含 date 和 productData 字段', 'error');
+        return;
+      }
+      saveStoreData(data);
+      renderStoreDashboard();
+      showToast('数据导入成功：' + data.date, 'success');
+    } catch(err) {
+      showToast('JSON 解析失败：' + err.message, 'error');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function fmtNum(n, decimals) {
+  if (n === null || n === undefined || n === '') return '-';
+  const num = typeof n === 'string' ? parseFloat(n) : n;
+  if (isNaN(num)) return '-';
+  if (decimals !== undefined) return num.toFixed(decimals);
+  return num.toLocaleString('zh-CN', { maximumFractionDigits: 2 });
+}
+
+function fmtMoney(n) {
+  const num = typeof n === 'string' ? parseFloat(n) : n;
+  if (isNaN(num) || num === 0) return '¥0.00';
+  if (Math.abs(num) >= 10000) return '¥' + (num / 10000).toFixed(2) + '万';
+  return '¥' + num.toFixed(2);
+}
+
+function fmtPercent(n) {
+  const num = typeof n === 'string' ? parseFloat(n) : n;
+  if (isNaN(num)) return '-';
+  return (num * 100).toFixed(2) + '%';
+}
+
+function renderStoreDashboard() {
+  const data = getStoreData();
+  const loading = document.getElementById('storeLoading');
+  const empty = document.getElementById('storeEmpty');
+  const content = document.getElementById('storeContent');
+  const dateBadge = document.getElementById('storeDateBadge');
+  const status = document.getElementById('storeDataStatus');
+
+  loading.style.display = 'none';
+
+  if (!data) {
+    empty.style.display = 'block';
+    content.style.display = 'none';
+    dateBadge.textContent = '📅 暂无数据';
+    status.textContent = '';
+    return;
+  }
+
+  empty.style.display = 'none';
+  content.style.display = 'block';
+  dateBadge.textContent = '📅 ' + data.date;
+  if (data.updateTime) {
+    status.textContent = '最后更新: ' + data.updateTime;
+  }
+
+  const ts = data.totalSum || {};
+  const chain = data.chainData || {};
+
+  // === KPI 卡片 ===
+  const kpiHtml = `
+    <div class="store-kpi">
+      <div class="kpi-icon">💰</div>
+      <div class="kpi-label">总销售额(¥)</div>
+      <div class="kpi-value">${fmtMoney(ts.sales_amount)}</div>
+      ${chain.amount_chain_ratio ? `<div class="kpi-sub">日环比 <span class="${parseFloat(chain.amount_chain_ratio) >= 0 ? 'tag-up' : 'tag-down'}">${parseFloat(chain.amount_chain_ratio) >= 0 ? '↑' : '↓'}${fmtPercent(chain.amount_chain_ratio)}</span></div>` : ''}
+    </div>
+    <div class="store-kpi">
+      <div class="kpi-icon">📦</div>
+      <div class="kpi-label">订单量</div>
+      <div class="kpi-value">${fmtNum(ts.order_items)}</div>
+      ${chain.order_chain_ratio ? `<div class="kpi-sub">日环比 <span class="${parseFloat(chain.order_chain_ratio) >= 0 ? 'tag-up' : 'tag-down'}">${parseFloat(chain.order_chain_ratio) >= 0 ? '↑' : '↓'}${fmtPercent(chain.order_chain_ratio)}</span></div>` : ''}
+    </div>
+    <div class="store-kpi">
+      <div class="kpi-icon">📊</div>
+      <div class="kpi-label">总销量</div>
+      <div class="kpi-value">${fmtNum(ts.volume)}</div>
+      ${chain.volume_chain_ratio ? `<div class="kpi-sub">日环比 <span class="${parseFloat(chain.volume_chain_ratio) >= 0 ? 'tag-up' : 'tag-down'}">${parseFloat(chain.volume_chain_ratio) >= 0 ? '↑' : '↓'}${fmtPercent(chain.volume_chain_ratio)}</span></div>` : ''}
+    </div>
+    <div class="store-kpi">
+      <div class="kpi-icon">${parseFloat(ts.gross_profit || 0) >= 0 ? '✅' : '⚠️'}</div>
+      <div class="kpi-label">总毛利(¥)</div>
+      <div class="kpi-value ${parseFloat(ts.gross_profit || 0) >= 0 ? 'up' : 'down'}">${fmtMoney(ts.gross_profit)}</div>
+      <div class="kpi-sub">毛利率 <strong>${fmtPercent(ts.gross_margin)}</strong></div>
+    </div>
+  `;
+  document.getElementById('storeKpiGrid').innerHTML = kpiHtml;
+
+  // === 广告效率 ===
+  const acosVal = parseFloat(ts.acos || 0);
+  const roasVal = parseFloat(ts.roas || 0);
+  const tacosVal = parseFloat(ts.tacos || 0);
+  const ctrVal = parseFloat(ts.ctr || 0);
+  const cvrVal = parseFloat(ts.cvr || 0);
+  const cpcVal = parseFloat(ts.cpc || 0);
+
+  const adHtml = `
+    <div class="store-ad-card">
+      <div class="ad-label">ACOS</div>
+      <div class="ad-value ${acosVal > 0.35 ? 'bad' : acosVal > 0.2 ? 'warn' : 'good'}">${fmtPercent(acosVal)}</div>
+      <div class="ad-desc">${acosVal > 0.35 ? '⚠️ 偏高' : acosVal > 0.2 ? '👀 关注' : '✅ 健康'}</div>
+    </div>
+    <div class="store-ad-card">
+      <div class="ad-label">ROAS</div>
+      <div class="ad-value ${roasVal >= 4 ? 'good' : roasVal >= 2.5 ? 'warn' : 'bad'}">${fmtNum(roasVal, 2)}</div>
+      <div class="ad-desc">广告投入回报比</div>
+    </div>
+    <div class="store-ad-card">
+      <div class="ad-label">TACOS</div>
+      <div class="ad-value ${tacosVal > 0.15 ? 'bad' : tacosVal > 0.08 ? 'warn' : 'good'}">${fmtPercent(tacosVal)}</div>
+      <div class="ad-desc">总广告销售比</div>
+    </div>
+    <div class="store-ad-card">
+      <div class="ad-label">CTR 点击率</div>
+      <div class="ad-value ${ctrVal > 0.01 ? 'good' : ctrVal > 0.005 ? 'warn' : 'bad'}">${fmtPercent(ctrVal)}</div>
+      <div class="ad-desc">广告点击率</div>
+    </div>
+    <div class="store-ad-card">
+      <div class="ad-label">CVR 转化率</div>
+      <div class="ad-value ${cvrVal > 0.15 ? 'good' : cvrVal > 0.08 ? 'warn' : 'bad'}">${fmtPercent(cvrVal)}</div>
+      <div class="ad-desc">广告转化率</div>
+    </div>
+    <div class="store-ad-card">
+      <div class="ad-label">CPC 点击成本</div>
+      <div class="ad-value">${cpcVal > 0 ? '¥' + cpcVal.toFixed(2) : '-'}</div>
+      <div class="ad-desc">单次点击费用</div>
+    </div>
+  `;
+  document.getElementById('storeAdGrid').innerHTML = adHtml;
+
+  // === 热销商品 TOP10 ===
+  const products = data.productData || [];
+  const sorted = [...products].sort((a, b) => parseFloat(b.gross_profit || 0) - parseFloat(a.gross_profit || 0));
+  const top10 = sorted.slice(0, 10);
+  let topHtml = '';
+  top10.forEach((p, i) => {
+    const gp = parseFloat(p.gross_profit || 0);
+    const gm = parseFloat(p.gross_margin || 0);
+    const rr = parseFloat(p.return_goods_rate || 0);
+    const rc = parseInt(p.return_goods_count || 0);
+    // Extract SKU name from seller_skus
+    let skuDisplay = p.msku || p.sku || '-';
+    if (!skuDisplay || skuDisplay === '-') {
+      const skus = p.seller_skus || [];
+      if (skus.length > 0) {
+        skuDisplay = skus[0].split('$|$')[0] || '-';
+      }
+    }
+    topHtml += `<tr>
+      <td>${i + 1}</td>
+      <td><span style="font-weight:600;color:var(--primary);">${escapeHtml(p.asin || '-')}</span></td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(p.item_name || '-')}</td>
+      <td>${escapeHtml(skuDisplay)}</td>
+      <td class="num-cell">${fmtNum(p.volume)}</td>
+      <td class="num-cell">${fmtMoney(p.sales_amount)}</td>
+      <td class="num-cell ${gp >= 0 ? 'pos' : 'neg'}">${fmtMoney(gp)}</td>
+      <td class="num-cell ${gm >= 0.25 ? 'pos' : gm < 0 ? 'neg' : ''}">${fmtPercent(gm)}</td>
+      <td class="num-cell ${rc > 0 ? 'neg' : ''}">${rc > 0 ? rc + '件' : '-'}</td>
+    </tr>`;
+  });
+  document.getElementById('storeTopProducts').innerHTML = topHtml;
+
+  // === 退货预警 ===
+  const returnItems = products.filter(p => parseInt(p.return_goods_count || 0) > 0);
+  const returnSection = document.getElementById('storeReturnSection');
+  if (returnItems.length > 0) {
+    returnSection.style.display = 'block';
+    returnItems.sort((a, b) => parseInt(b.return_goods_count) - parseInt(a.return_goods_count));
+    let retHtml = '';
+    returnItems.forEach(p => {
+      retHtml += `<tr>
+        <td style="font-weight:600;">${escapeHtml(p.asin || '-')}</td>
+        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(p.item_name || '-')}</td>
+        <td class="num-cell">${fmtNum(p.return_goods_count)}</td>
+        <td class="num-cell ${parseFloat(p.return_goods_rate || 0) >= 0.1 ? 'neg' : ''}">${fmtPercent(p.return_goods_rate)}</td>
+        <td class="num-cell">${fmtMoney(p.refund_amount)}</td>
+      </tr>`;
+    });
+    document.getElementById('storeReturnProducts').innerHTML = retHtml;
+  } else {
+    returnSection.style.display = 'none';
+  }
+
+  // === FBA 库存 ===
+  const stockData = data.stockData || [];
+  const stockSection = document.getElementById('storeStockSection');
+  if (stockData.length > 0) {
+    stockSection.style.display = 'block';
+    let totalFBA = 0, totalInTransit = 0, totalCost = 0, totalSKUs = stockData.length;
+    stockData.forEach(s => {
+      totalFBA += parseInt(s.afn_fulfillable_quantity || 0);
+      totalInTransit += parseInt(s.afn_inbound_shipped_quantity || 0) + parseInt(s.real_transit_quantity || 0);
+      totalCost += parseFloat(s.total_cost || 0);
+    });
+    document.getElementById('storeStockSummary').innerHTML = `
+      <div class="store-wh-item"><div class="wh-num">${totalSKUs}</div><div class="wh-label">SKU总数</div></div>
+      <div class="store-wh-item"><div class="wh-num">${totalFBA.toLocaleString()}</div><div class="wh-label">FBA可售</div></div>
+      <div class="store-wh-item"><div class="wh-num">${totalInTransit.toLocaleString()}</div><div class="wh-label">在途数量</div></div>
+      <div class="store-wh-item"><div class="wh-num">${fmtMoney(totalCost)}</div><div class="wh-label">库存总金额</div></div>
+    `;
+    let stockHtml = '';
+    stockData.slice(0, 20).forEach(s => {
+      const days = s.short_term_historical_days_of_supply || s.long_term_historical_days_of_supply || '-';
+      const age = s.inv_age_0_to_90_days || 0;
+      stockHtml += `<tr>
+        <td style="font-weight:600;">${escapeHtml(s.sku || '-')}</td>
+        <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(s.product_name || '-')}</td>
+        <td>${escapeHtml(s.seller_name || '-')}</td>
+        <td class="num-cell">${parseInt(s.afn_fulfillable_quantity || 0).toLocaleString()}</td>
+        <td class="num-cell">${(parseInt(s.afn_inbound_shipped_quantity || 0) + parseInt(s.real_transit_quantity || 0)).toLocaleString()}</td>
+        <td class="num-cell">${fmtMoney(s.total_cost)}</td>
+        <td class="num-cell">${age}</td>
+        <td class="num-cell">${typeof days === 'string' ? days : fmtNum(days, 0)}</td>
+      </tr>`;
+    });
+    document.getElementById('storeStockTable').innerHTML = stockHtml;
+  } else {
+    stockSection.style.display = 'none';
+  }
+}
+
 // 工具
 // ============================================================
 function escapeHtml(str) {
