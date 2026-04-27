@@ -2736,10 +2736,13 @@ const DEFAULT_STAFF = [
 function getStaffList() {
   const stored = localStorage.getItem('opex_staff');
   if (stored) {
-    try { return JSON.parse(stored); } catch(e) {}
+    try {
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    } catch(e) {}
   }
-  // 首次加载，写入默认数据
-  localStorage.setItem('opex_staff', JSON.stringify(DEFAULT_STAFF));
+  // 首次加载或数据为空，写入默认数据
+  saveStaffList(DEFAULT_STAFF);
   return [...DEFAULT_STAFF];
 }
 
