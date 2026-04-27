@@ -1413,6 +1413,7 @@ function doLogin() {
 
   populateAssigneeSelect();
   renderAll();
+  addSyncNavItem();
   updateCeoButtonVisibility();
   updateSidebarAccess();
   showToast('欢迎回来，' + name + '！', 'success');
@@ -3298,12 +3299,140 @@ function _renderStoreContent(data) {
   }
 }
 
-// 工具
-// ============================================================
-function escapeHtml(str) {
-  if (!str) return '';
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+// ---------- 4. 侧边栏同步按钮 ----------
+function addSyncNavItem() {
+  var navList = document.querySelector('.sidebar .nav-list');
+  if (!navList || document.getElementById('syncNavItem')) return;
+  var item = document.createElement('div');
+  item.id = 'syncNavItem';
+  item.className = 'nav-item';
+  item.style.cssText = 'cursor:pointer;padding:10px 16px;font-size:13px;color:#64748B;display:flex;align-items:center;gap:8px;transition:all 0.2s;';
+  item.innerHTML = '🔄 数据同步';
+  item.onclick = openGistSyncModal;
+  item.title = 'GitHub Gist 数据同步';
+  navList.appendChild(item);
 }
+
+// ============================================================
+// 数据导入导出 & GitHub Gist 同步功能
+// ============================================================
+
+function exportTasksJSON() {
+  var data = { version:'v4', exportedAt:new Date().toISOString(), exportedBy:currentUser?currentUser.name:'unknown', tasks:tasks };
+  var blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a'); a.href = url;
+  a.download = 'opex-tasks-backup-' + new Date().toISOString().split('T')[0] + '.json';
+  a.click(); URL.revokeObjectURL(url);
+  showToast('✅ 任务数据已导出为 JSON 文件', 'success');
+}
+
+function handleTasksImport(event) {
+  var file = event.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var data = JSON.parse(e.target.result);
+      if (!data.tasks || !Array.isArray(data.tasks)) { showToast('❌ 文件格式错误', 'error'); return; }
+      tasks = data.tasks; saveData(); renderAll();
+      showToast('✅ 成功导入 ' + tasks.length + ' 条任务（来自 ' + (data.exportedBy||'未知') + '）', 'success');
+    } catch(err) { showToast('❌ JSON解析失败：' + err.message, 'error'); }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+var GIST_ID_KEY = 'opex_gist_id';
+var GIST_TOKEN_KEY = 'opex_gist_token';
+
+function openGistSyncModal() {
+  var modal = document.getElementById('gistSyncModal') || createGistSyncModal();
+  modal.style.display = 'flex';
+}
+function closeGistSyncModal() {
+  var m = document.getElementById('gistSyncModal');
+  if (m) m.style.display = 'none';
+}
+
+function createGistSyncModal() {
+  var savedToken = localStorage.getItem(GIST_TOKEN_KEY) || '';
+  var savedId = localStorage.getItem(GIST_ID_KEY) || '';
+  var modal = document.createElement('div');
+  modal.id = 'gistSyncModal';
+  modal.style.cssText = 'display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;';
+  modal.innerHTML = '<div style="background:#1E293B;color:#E2E8F0;padding:32px;border-radius:16px;width:520px;max-width:95%;box-shadow:0 20px 60px rgba(0,0,0,0.4);">' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">' +
+    '<h2 style="margin:0;font-size:18px;">🔄 GitHub Gist 数据同步</h2>' +
+    '<button onclick="closeGistSyncModal()" style="background:none;border:none;color:#94A3B8;font-size:24px;cursor:pointer;">&times;</button></div>' +
+    '<div style="background:#0F172A;border-radius:8px;padding:16px;margin-bottom:16px;">' +
+    '<h3 style="margin:0 0 12px;font-size:14px;color:#94A3B8;">⚙️ Gist 配置（仅首次需配置）</h3>' +
+    '<div style="margin-bottom:12px;"><label style="font-size:12px;color:#94A3B8;display:block;margin-bottom:4px;">GitHub Personal Access Token</label>' +
+    '<input id="gistTokenInput" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" value="' + savedToken + '" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid #334155;background:#1E293B;color:#E2E8F0;font-size:13px;box-sizing:border-box;">' +
+    '<div style="font-size:11px;color:#64748B;margin-top:4px;">需要 gist 权限 · <a href="https://github.com/settings/tokens/new?scopes=gist" target="_blank" style="color:#3B82F6;">创建 Token →</a></div></div>' +
+    '<div style="margin-bottom:12px;"><label style="font-size:12px;color:#94A3B8;display:block;margin-bottom:4px;">Gist ID</label>' +
+    '<input id="gistIdInput" type="text" placeholder="粘贴 Gist ID，例如 8a7b6c5d4e3f..." value="' + savedId + '" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid #334155;background:#1E293B;color:#E2E8F0;font-size:13px;box-sizing:border-box;"></div>' +
+    '<button onclick="saveGistConfig()" style="padding:8px 16px;border-radius:6px;border:none;background:#3B82F6;color:white;cursor:pointer;font-size:13px;">💾 保存配置</button></div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">' +
+    '<button onclick="gistPush()" style="padding:16px;border-radius:8px;border:none;background:#10B981;color:white;cursor:pointer;font-size:14px;font-weight:600;">⬆️ 推送更新<br><span style="font-size:12px;font-weight:400;opacity:0.8;">员工提交后执行</span></button>' +
+    '<button onclick="gistPull()" style="padding:16px;border-radius:8px;border:none;background:#F59E0B;color:white;cursor:pointer;font-size:14px;font-weight:600;">⬇️ 拉取更新<br><span style="font-size:12px;font-weight:400;opacity:0.8;">CEO 查看时执行</span></button></div>' +
+    '<div id="gistStatus" style="background:#0F172A;border-radius:8px;padding:12px;font-size:13px;color:#64748B;min-height:44px;word-break:break-all;">点击上方按钮进行同步。推送将员工数据上传到 Gist；拉取将最新数据下载到本地。</div>' +
+    '<div style="margin-top:16px;padding:12px;background:#1E293B;border-radius:8px;font-size:12px;color:#64748B;line-height:1.6;">' +
+    '<strong style="color:#94A3B8;">💡 同步说明：</strong><br>· <strong>员工</strong>提交更新后，点击「⬆️ 推送更新」<br>· <strong>CEO</strong>打开 App 后，点击「⬇️ 拉取更新」<br>· 建议使用私有 Gist（取消勾选 Public）</div></div>';
+  document.body.appendChild(modal);
+  return modal;
+}
+
+function saveGistConfig() {
+  localStorage.setItem(GIST_TOKEN_KEY, document.getElementById('gistTokenInput').value.trim());
+  localStorage.setItem(GIST_ID_KEY, document.getElementById('gistIdInput').value.trim());
+  showToast('✅ Gist 配置已保存', 'success');
+  document.getElementById('gistStatus').textContent = '配置已保存，可以开始同步了。';
+}
+
+async function gistPush() {
+  var token = localStorage.getItem(GIST_TOKEN_KEY);
+  var gistId = localStorage.getItem(GIST_ID_KEY);
+  var statusEl = document.getElementById('gistStatus');
+  if (!token || !gistId) { statusEl.style.color='#F87171'; statusEl.textContent='❌ 请先配置 Token 和 Gist ID'; return; }
+  statusEl.style.color='#94A3B8'; statusEl.textContent='⏳ 正在推送数据...';
+  var payload = { version:'v4', exportedAt:new Date().toISOString(), exportedBy:currentUser?currentUser.name:'unknown', tasks:tasks };
+  try {
+    var r = await fetch('https://api.github.com/gists/' + gistId, {
+      method:'PATCH',
+      headers:{'Authorization':'Bearer ' + token,'Content-Type':'application/json','Accept':'application/vnd.github+json'},
+      body: JSON.stringify({ description:'出海记任务数据 - ' + new Date().toLocaleString('zh-CN'), files:{'opex-tasks.json':{content:JSON.stringify(payload,null,2)}}})
+    });
+    if (!r.ok) { var e=await r.json(); throw new Error(e.message||'HTTP '+r.status); }
+    statusEl.style.color='#10B981';
+    statusEl.textContent='✅ 推送成功！' + new Date().toLocaleString('zh-CN') + ' - 共 ' + tasks.length + ' 条任务';
+    showToast('✅ 数据已推送到 Gist', 'success');
+  } catch(err) { statusEl.style.color='#F87171'; statusEl.textContent='❌ 推送失败：'+err.message; showToast('❌ 推送失败：'+err.message,'error'); }
+}
+
+async function gistPull() {
+  var token = localStorage.getItem(GIST_TOKEN_KEY);
+  var gistId = localStorage.getItem(GIST_ID_KEY);
+  var statusEl = document.getElementById('gistStatus');
+  if (!token || !gistId) { statusEl.style.color='#F87171'; statusEl.textContent='❌ 请先配置 Token 和 Gist ID'; return; }
+  statusEl.style.color='#94A3B8'; statusEl.textContent='⏳ 正在拉取数据...';
+  try {
+    var r = await fetch('https://api.github.com/gists/' + gistId, {
+      headers:{'Authorization':'Bearer ' + token,'Accept':'application/vnd.github+json'}
+    });
+    if (!r.ok) { var e=await r.json(); throw new Error(e.message||'HTTP '+r.status); }
+    var gist = await r.json();
+    var file = gist.files['opex-tasks.json'];
+    if (!file) throw new Error('Gist 中未找到 opex-tasks.json');
+    var data = JSON.parse(file.content);
+    if (!data.tasks || !Array.isArray(data.tasks)) throw new Error('文件格式错误');
+    tasks = data.tasks; saveData(); renderAll();
+    statusEl.style.color='#10B981';
+    statusEl.textContent='✅ 拉取成功！数据来自 ' + (data.exportedBy||'未知') + '（' + new Date(data.exportedAt).toLocaleString('zh-CN') + '），共 ' + tasks.length + ' 条任务';
+    showToast('✅ 已拉取最新数据（来自 ' + (data.exportedBy||'未知') + '）', 'success');
+  } catch(err) { statusEl.style.color='#F87171'; statusEl.textContent='❌ 拉取失败：'+err.message; showToast('❌ 拉取失败：'+err.message,'error'); }
+}
+
 </script>
 </body>
 </html>
