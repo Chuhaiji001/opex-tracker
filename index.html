@@ -1208,6 +1208,15 @@ document.addEventListener('DOMContentLoaded', () => {
 // ============================================================
 // 用户 & 日期
 // ============================================================
+const DEFAULT_STAFF = [
+  { name: 'Tom', role: 'CEO', password: 'tom888618', createdAt: '2026-04-01' },
+  { name: '马钰', role: '运营主管', password: '123456', createdAt: '2026-04-01' },
+  { name: '宋扬', role: '运营助理', password: '234567', createdAt: '2026-04-01' },
+  { name: '杨秉伟', role: '美工', password: '345678', createdAt: '2026-04-01' },
+  { name: '项舒晶', role: '采购', password: '4567890', createdAt: '2026-04-01' },
+  { name: '管理员', role: '管理员', password: '888888', createdAt: '2026-04-01' },
+];
+
 function initUsers() {
   const staffList = getStaffList();
   const list = document.getElementById('userList');
@@ -2725,15 +2734,6 @@ function updateBadge() {
 // ============================================================
 // 员工管理（CEO 专属）
 // ============================================================
-const DEFAULT_STAFF = [
-  { name: 'Tom', role: 'CEO', password: 'tom888618', createdAt: '2026-04-01' },
-  { name: '马钰', role: '运营主管', password: '123456', createdAt: '2026-04-01' },
-  { name: '宋扬', role: '运营助理', password: '234567', createdAt: '2026-04-01' },
-  { name: '杨秉伟', role: '美工', password: '345678', createdAt: '2026-04-01' },
-  { name: '项舒晶', role: '采购', password: '4567890', createdAt: '2026-04-01' },
-  { name: '管理员', role: '管理员', password: '888888', createdAt: '2026-04-01' },
-];
-
 function getStaffList() {
   const stored = localStorage.getItem('opex_staff');
   if (stored) {
@@ -2742,7 +2742,8 @@ function getStaffList() {
       if (Array.isArray(parsed) && parsed.length > 0) return parsed;
     } catch(e) {}
   }
-  // 首次加载或数据为空，写入默认数据
+  // 首次加载或数据为空/无效，清除旧数据并写入默认
+  localStorage.removeItem('opex_staff');
   saveStaffList(DEFAULT_STAFF);
   return [...DEFAULT_STAFF];
 }
